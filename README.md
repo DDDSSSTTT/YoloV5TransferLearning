@@ -44,6 +44,7 @@ $ bash download_weights.sh
 ```
 $ bash data/scripts/get_voc.sh
 $ cd yolo
+$ cp ../data/sample/voc.names /content/Yolov5/data/voc/
 $ python dataset/prepare_data.py
 ```
 

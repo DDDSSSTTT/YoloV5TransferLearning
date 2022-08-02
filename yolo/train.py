@@ -97,7 +97,8 @@ class Trainer(object):
         for epoch in range(1, self.params['n_epochs'] + 1):
             for step, (image, target) in enumerate(train_dataset):                
                 loss = self.dist_train_step(image, target)
-                print('=> Epoch {}, Step {}, Loss {:.5f}'.format(epoch, self.global_step.numpy(), loss.numpy()))
+                if step%50==0:
+                    print('=> Epoch {}, Step {}, Loss {:.5f}'.format(epoch, self.global_step.numpy(), loss.numpy()))
                 with self.log_writer.as_default():
                     tf.summary.scalar('loss', loss, step=self.global_step)
                     tf.summary.scalar('lr', self.optimizer.lr, step=self.global_step)
