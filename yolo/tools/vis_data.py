@@ -26,28 +26,36 @@ def draw_box(image, label, classes_map=None):
     colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
     bbox_thick = int(0.6 * (image_h + image_w) / 600)   
     font_scale = 0.5
+    score_thresh = 0.5
 
     for i in range(label.shape[0]):
         x1y1 = tuple(box[i, 0:2])
         x2y2 = tuple(box[i, 2:4])
         class_ind = int(classes[i])
-        bbox_color = colors[class_ind]
-        image = cv2.rectangle(image, x1y1, x2y2, bbox_color, bbox_thick)
-
-        # show labels
-        if classes_map is not None:
-            class_ind = classes_map[class_ind]
-        else:
-            class_ind = str(class_ind)
-
+        if class_ind >= len(classes_map):
+            # skip some really weird results
+            continue
+        bbox_color = colors[class_ind%len(colors)]
         if label.shape[-1] == 6:
-            score = ': ' + str(round(label[i, -2], 2))
+            prime_score = round(label[i, -2], 2)
+            score = ': ' + str(prime_score)
         else:
             score = ''
 
-        bbox_text = '%s %s' % (class_ind, score)
-        t_size = cv2.getTextSize(bbox_text, 0, font_scale, thickness=bbox_thick//2)[0]
-        cv2.rectangle(image, x1y1, (x1y1[0] + t_size[0], x1y1[1] - t_size[1] - 3), bbox_color, -1)  # filled
-        cv2.putText(image, bbox_text, (x1y1[0], x1y1[1]-2), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), bbox_thick//2, lineType=cv2.LINE_AA)
+        if prime_score<score_thresh:
+            pass
+        else:
+            image = cv2.rectangle(image, x1y1, x2y2, bbox_color, bbox_thick)
+
+            # show labels
+            if classes_map is not None:
+                class_ind = classes_map[class_ind]
+            else:
+                class_ind = str(class_ind)
+
+            bbox_text = '%s %s' % (class_ind, score)
+            t_size = cv2.getTextSize(bbox_text, 0, font_scale, thickness=bbox_thick//2)[0]
+            cv2.rectangle(image, x1y1, (x1y1[0] + t_size[0], x1y1[1] - t_size[1] - 3), bbox_color, -1)  # filled
+            cv2.putText(image, bbox_text, (x1y1[0], x1y1[1]-2), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), bbox_thick//2, lineType=cv2.LINE_AA)
 
     return image
